@@ -7,30 +7,33 @@ df = pd.DataFrame(data)
 tab1, tab2, tab3 = st.tabs(["Cat", "Dog", "Owl"])
 
 with tab1:
-    # Entrée utilisateur avec un placeholder pour guider
+    # Entrée utilisateur
     sql_query = st.text_area(label="Entrez votre requête SQL :", placeholder="Exemple : SELECT * FROM df")
 
-    # Vérification de la requête utilisateur
-    if sql_query.strip():  # Assurez-vous que la requête n'est pas vide
+    # Vérification de l'entrée utilisateur
+    if sql_query.strip():  # S'assurer que l'entrée n'est pas vide
         try:
-            # Connexion à DuckDB
-            con = duckdb.connect()  # Connexion temporaire
-            con.register("df", df)  # Enregistrement du DataFrame comme une table SQL
+            # Connexion DuckDB et enregistrement de la table
+            con = duckdb.connect()
+            con.register("df", df)
 
-            # Exécution de la requête
-            result = con.execute(sql_query).df()  # Convertit le résultat en DataFrame
+            # Exécution de la requête SQL
+            result = con.execute(sql_query).df()
 
             # Affichage des résultats
-            st.write(f"Vous avez entré la requête suivante :")
-            st.code(sql_query, language="sql")  # Affiche la requête avec mise en forme
-            st.dataframe(result)  # Affiche le résultat sous forme de tableau
+            st.write("Vous avez entré la requête suivante :")
+            st.code(sql_query, language="sql")
+            st.dataframe(result)
 
         except Exception as e:
-            # Affiche un message d'erreur détaillé
-            st.error(f"Erreur lors de l'exécution de la requête : {e}")
+            # Éviter d'afficher tout l'objet exception brute
+            st.error("Une erreur est survenue lors de l'exécution de la requête.")
+
+            # Facultatif : Affiche une version nettoyée de l'erreur dans la console pour déboguer
+            with st.expander("Afficher les détails de l'erreur pour débogage"):
+                st.exception(e)  # Affiche l'exception dans un cadre dédié
     else:
-        # Message si la zone de texte est vide
-        st.warning("Veuillez entrer une requête SQL valide dans la zone ci-dessus.")
+        st.warning("Veuillez entrer une requête SQL valide.")
     '''
     sql_query = st.text_area(label="Entrez votre input : ")
     result = duckdb.query(sql_query).df()
