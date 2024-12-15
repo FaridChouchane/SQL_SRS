@@ -3,6 +3,8 @@ import streamlit as st
 import duckdb
 import io
 
+from scipy.optimize import newton_krylov
+
 #----------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------
 csv = '''
@@ -53,6 +55,19 @@ query = st.text_area(label = "votre code SQL ici :", key = "user_input")
 if query :
     result = duckdb.sql(query).df()
     st.dataframe(result)
+
+    if len(result.columns) != len(
+        solution.columns
+    ): # replace with try result = result[solution.columns]
+        st.write("/!\  ---- SOME COLUMNS ARE MISSING ---- /!\ ")
+    n_lines_difference = result.shape[0] - solution.shape[0]
+    if n_lines_difference != 0:
+        st.write(
+            f"DIFFERENCE DE  {n_lines_difference} LIGNES AVEC LA SOLUTION"
+        )
+# ----------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------
+    st.dataframe(result.compare(solution))
 #----------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------
 tab2, tab3 = st.tabs(["Tables", "Solution"])
