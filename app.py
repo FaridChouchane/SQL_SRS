@@ -1,8 +1,11 @@
 # pylint: disable=missing-module-docstring
 import io
+import ast
 import duckdb
 import pandas as pd
 import streamlit as st
+
+
 # ----------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------
 con = duckdb.connect(database = "data/exercices_sql_tables.duckdb", read_only = False)
@@ -49,11 +52,22 @@ query = st.text_area(label="votre code SQL ici :", key="user_input")
 #
 # # ----------------------------------------------------------------------------------------
 # # ----------------------------------------------------------------------------------------
-# tab2, tab3 = st.tabs(["Tables", "Solution"])
+tab2, tab3 = st.tabs(["Tables", "Solution"])
 #
-# with tab2:
-#     st.write("table : beverages")
-#     st.dataframe(beverages)
+with tab2:
+    if exercise.empty:
+        st.write("No exercises found for the selected theme.")
+    elif "tables" not in exercise.columns:
+        st.write("The 'tables' column is missing from the exercise DataFrame.")
+    else:
+        try:
+            exercise_tables = ast.literal_eval(exercise.loc[0, "tables"])
+            for table in exercise_tables:
+                st.write(f"table : {table}")
+                df_table = con.execute(f"SELECT * FROM {table}").df()
+                st.dataframe(df_table)
+        except Exception as e:
+            st.write("Error processing tables:", str(e))
 #     st.write("table : food_items")
 #     st.dataframe(food_items)
 #     st.write("expected :")
