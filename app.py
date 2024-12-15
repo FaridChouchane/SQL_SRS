@@ -1,88 +1,65 @@
 # pylint: disable=missing-module-docstring
 import io
-
 import duckdb
 import pandas as pd
 import streamlit as st
-from scipy.optimize import newton_krylov
-
 # ----------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------
-CSV = """
-beverage,price
-orange juice, 2.5
-Expresso, 3
-Tea, 4
-"""
-beverages = pd.read_csv(io.StringIO(CSV))
+con = duckdb.connect(database = "data/exercices_sql_tables.duckdb", read_only = False)
 # ----------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------
-CSV2 = """
-food_item,food_price
-cookie , 2.5
-Chocloatine, 3
-muffin, 4
-"""
-food_items = pd.read_csv(io.StringIO(CSV2))
+# solution_df = duckdb.sql(ANSWER_STR).df()
 # ----------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------
-ANSWER_STR = """
-SELECT *
-FROM beverages
-CROSS JOIN food_items
-"""
-# ----------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------
-solution_df = duckdb.sql(ANSWER_STR).df()
-# ----------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------
-
 # -----------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------
 with st.sidebar:
-    option = st.selectbox(
+    theme = st.selectbox(
         "What would you like to review ?\n",
-        ("Joins", "GroupBy", "Windows Functions"),
+        ("cross-joins", "GroupBy", "Windows Functions"),
         index=None,
         placeholder="Select a theme...",
     )
-    st.write("You selected", option)
+    st.write("You selected", theme)
 
+    exercise = con.execute(f"SELECT * FROM memory_state_df WHERE theme = '{theme}'").df()
+    st.write(exercise)
 st.header(" Enter your code :\n ")
 query = st.text_area(label="votre code SQL ici :", key="user_input")
-# ----------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------
-if query:
-    result = duckdb.sql(query).df()
-    st.dataframe(result)
-    # ----------------------------------------------------------------------------------------
-    # ----------------------------------------------------------------------------------------
-    try:
-        result = result[solution_df.columns]
-        st.dataframe(result.compare(solution_df))
-    except KeyError as e:
-        st.write("/!\  ---- SOME COLUMNS ARE MISSING ---- /!\ ")
-    # ----------------------------------------------------------------------------------------
-    # ----------------------------------------------------------------------------------------
-    n_lines_difference = result.shape[0] - solution_df.shape[0]
-    if n_lines_difference != 0:
-        st.write(f"DIFFERENCE DE  {n_lines_difference} LIGNES AVEC LA SOLUTION")
-# ----------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------
-
-# ----------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------
-tab2, tab3 = st.tabs(["Tables", "Solution"])
-
-with tab2:
-    st.write("table : beverages")
-    st.dataframe(beverages)
-    st.write("table : food_items")
-    st.dataframe(food_items)
-    st.write("expected :")
-    st.dataframe(solution_df)
-
-with tab3:
-    st.write(ANSWER_STR)
-# ----------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------
+#
+# # ----------------------------------------------------------------------------------------
+# # ----------------------------------------------------------------------------------------
+# if query:
+#     result = duckdb.sql(query).df()
+#     st.dataframe(result)
+#     # ----------------------------------------------------------------------------------------
+#     # ----------------------------------------------------------------------------------------
+#     try:
+#         result = result[solution_df.columns]
+#         st.dataframe(result.compare(solution_df))
+#     except KeyError as e:
+#         st.write("/!\  ---- SOME COLUMNS ARE MISSING ---- /!\ ")
+#     # ----------------------------------------------------------------------------------------
+#     # ----------------------------------------------------------------------------------------
+#     n_lines_difference = result.shape[0] - solution_df.shape[0]
+#     if n_lines_difference != 0:
+#         st.write(f"DIFFERENCE DE  {n_lines_difference} LIGNES AVEC LA SOLUTION")
+# # ----------------------------------------------------------------------------------------
+# # ----------------------------------------------------------------------------------------
+#
+# # ----------------------------------------------------------------------------------------
+# # ----------------------------------------------------------------------------------------
+# tab2, tab3 = st.tabs(["Tables", "Solution"])
+#
+# with tab2:
+#     st.write("table : beverages")
+#     st.dataframe(beverages)
+#     st.write("table : food_items")
+#     st.dataframe(food_items)
+#     st.write("expected :")
+#     st.dataframe(solution_df)
+#
+# with tab3:
+#     st.write(ANSWER_STR)
+# # ----------------------------------------------------------------------------------------
+# # ----------------------------------------------------------------------------------------
