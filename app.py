@@ -7,29 +7,30 @@ df = pd.DataFrame(data)
 tab1, tab2, tab3 = st.tabs(["Cat", "Dog", "Owl"])
 
 with tab1:
-    # Entrée utilisateur
-    sql_query = st.text_area(label="Entrez votre input :", value="")  # Zone de texte initialement vide
+    # Entrée utilisateur avec un placeholder pour guider
+    sql_query = st.text_area(label="Entrez votre requête SQL :", placeholder="Exemple : SELECT * FROM df")
 
-    if sql_query.strip():  # Vérifie si une requête non vide est saisie
+    # Vérification de la requête utilisateur
+    if sql_query.strip():  # Assurez-vous que la requête n'est pas vide
         try:
-            # Connexion DuckDB et enregistrement de la table
-            con = duckdb.connect()
-            con.register("df", df)  # Enregistre le DataFrame comme une table
+            # Connexion à DuckDB
+            con = duckdb.connect()  # Connexion temporaire
+            con.register("df", df)  # Enregistrement du DataFrame comme une table SQL
 
             # Exécution de la requête
-            result = con.execute(sql_query).df()
-            st.write(f"Vous avez entré la requête suivante : {sql_query}")
-            st.dataframe(result)
+            result = con.execute(sql_query).df()  # Convertit le résultat en DataFrame
+
+            # Affichage des résultats
+            st.write(f"Vous avez entré la requête suivante :")
+            st.code(sql_query, language="sql")  # Affiche la requête avec mise en forme
+            st.dataframe(result)  # Affiche le résultat sous forme de tableau
+
         except Exception as e:
-            # Affiche un message d'erreur clair
+            # Affiche un message d'erreur détaillé
             st.error(f"Erreur lors de l'exécution de la requête : {e}")
     else:
-        # Message d'avertissement si la zone est vide
-        st.warning("Veuillez entrer une requête SQL valide.")
-
-    # Affichage d'une image
-    st.header("A cat")
-    st.image("https://storage.googleapis.com/pod_public/1300/151089.jpg", width=200)
+        # Message si la zone de texte est vide
+        st.warning("Veuillez entrer une requête SQL valide dans la zone ci-dessus.")
     '''
     sql_query = st.text_area(label="Entrez votre input : ")
     result = duckdb.query(sql_query).df()
