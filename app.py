@@ -2,21 +2,27 @@ import pandas as pd
 import streamlit as st
 import duckdb
 
-st.write("SQL SRS\n"
+# ---------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+st.write("# SQL SRS\n"
          "Spaced Repetition System SQL Practice")
-
-option = st.selectbox(
-    "What would you like to review ?\n",
-    ("Joins", "GroupBy", "Windows Functions"),
-    index = None,
-    placeholder = "Select a theme...",
-)
-
-
-data = {"a" : [1, 2, 3], "b" : [4, 5, 6]}
+#-----------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+with st.sidebar:
+    option = st.selectbox(
+        "What would you like to review ?\n",
+        ("Joins", "GroupBy", "Windows Functions"),
+        index=None,
+        placeholder="Select a theme...",
+    )
+    st.write("You selected", option)
+#-----------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+data = {"a" : [1, 2, 3], "b" : [4, 5, 6], "c" : [7, 8, 9]}
 df = pd.DataFrame(data)
 tab1, tab2, tab3 = st.tabs(["Cat", "Dog", "Owl"])
-
+#-----------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
 with tab1:
     # Entrée utilisateur
     sql_query = st.text_area(label="Entrez votre requête SQL :", placeholder="Exemple : SELECT * FROM df")
@@ -45,14 +51,12 @@ with tab1:
                 st.exception(e)  # Affiche l'exception dans un cadre dédié
     else:
         st.warning("Veuillez entrer une requête SQL valide.")
-    '''
-    sql_query = st.text_area(label="Entrez votre input : ")
-    result = duckdb.query(sql_query).df()
-    st.write(f"vous avez entré la query suivante : {sql_query}")
-    st.dataframe(result)
-    st.header("A cat")
-    st.image("https://storage.googleapis.com/pod_public/1300/151089.jpg", width=200)
-    '''
+#-----------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+
+
+
 with tab2:
     st.header("A dog")
     st.image("https://cdn.britannica.com/79/232779-050-6B0411D7/German-Shepherd-dog-Alsatian.jpg", width=200)
