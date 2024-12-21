@@ -27,21 +27,31 @@ con = duckdb.connect(database = "data/exercices_sql_tables.duckdb", read_only = 
 # ----------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------
-with (st.sidebar):
+with st.sidebar:
+    available_themes_df = con.execute("SELECT DISTINCT theme FROM memory_state_df").df()
     theme = st.selectbox(
         "What would you like to review ?\n",
-        ("cross-joins", "GroupBy", "windows_functions"),
+        available_themes_df["theme"].unique(),
         index=None,
         placeholder="Select a theme...",
     )
-    st.write("You selected", theme)
+    if theme:
+        st.write("You selected", theme)
+        select_exercice_query = f"SELECT * FROM memory_state_df WHERE theme = '{theme}'"
+    else:
+        select_exercice_query = f"SELECT * FROM memory_state_df"
 
-    exercise = con.execute(f"SELECT * FROM memory_state_df WHERE theme = '{theme}'").df().sort_values("last_reviewed").reset_index()
-    st.write(exercise)
+        exercise = (
+            con.execute(select_exercice_query)
+            .df()
+            .sort_values("last_reviewed")
+            .reset_index(drop=True)
+        )
+        st.write(exercise)
 
-    exercice_name = exercise.loc[0, "exercice_name"]
-    with open(f"answers/{exercice_name}.sql", "r") as f:
-        answer = f.read()
+        exercice_name = exercise.loc[0, "exercice_name"]
+        with open(f"answers/{exercice_name}.sql", "r") as f:
+            answer = f.read()
 
     solution_df = con.execute(answer).df()
 
