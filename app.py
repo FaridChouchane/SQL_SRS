@@ -19,7 +19,7 @@ con = duckdb.connect(database = "data/exercices_sql_tables.duckdb", read_only = 
 with st.sidebar:
     theme = st.selectbox(
         "What would you like to review ?\n",
-        ("cross-joins", "GroupBy", "Windows Functions"),
+        ("cross-joins", "GroupBy", "windows_functions"),
         index=None,
         placeholder="Select a theme...",
     )
@@ -32,9 +32,9 @@ query = st.text_area(label="votre code SQL ici :", key="user_input")
 #
 # # ----------------------------------------------------------------------------------------
 # # ----------------------------------------------------------------------------------------
-# if query:
-#     result = duckdb.sql(query).df()
-#     st.dataframe(result)
+if query:
+    result = con.execute(query).df()
+    st.dataframe(result)
 #     # ----------------------------------------------------------------------------------------
 #     # ----------------------------------------------------------------------------------------
 #     try:
@@ -73,7 +73,10 @@ with tab2:
 #     st.write("expected :")
 #     st.dataframe(solution_df)
 #
-# with tab3:
-#     st.write(ANSWER_STR)
+with tab3:
+    exercice_name = exercise.loc[0, "exercice_name"]
+    with open(f"answers/{exercice_name}.sql", "r") as f:
+        answer = f.read()
+    st.write(answer)
 # # ----------------------------------------------------------------------------------------
 # # ----------------------------------------------------------------------------------------
