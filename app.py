@@ -11,12 +11,11 @@ import streamlit as st
 con = duckdb.connect(database = "data/exercices_sql_tables.duckdb", read_only = False)
 # ----------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------
-# solution_df = duckdb.sql(ANSWER_STR).df()
 # ----------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------
-with st.sidebar:
+with (st.sidebar):
     theme = st.selectbox(
         "What would you like to review ?\n",
         ("cross-joins", "GroupBy", "windows_functions"),
@@ -27,6 +26,13 @@ with st.sidebar:
 
     exercise = con.execute(f"SELECT * FROM memory_state_df WHERE theme = '{theme}'").df()
     st.write(exercise)
+
+    exercice_name = exercise.loc[0, "exercice_name"]
+    with open(f"answers/{exercice_name}.sql", "r") as f:
+        answer = f.read()
+
+    solution_df = con.execute(answer).df()
+
 st.header(" Enter your code :\n ")
 query = st.text_area(label="votre code SQL ici :", key="user_input")
 #
@@ -35,18 +41,18 @@ query = st.text_area(label="votre code SQL ici :", key="user_input")
 if query:
     result = con.execute(query).df()
     st.dataframe(result)
-#     # ----------------------------------------------------------------------------------------
-#     # ----------------------------------------------------------------------------------------
-#     try:
-#         result = result[solution_df.columns]
-#         st.dataframe(result.compare(solution_df))
-#     except KeyError as e:
-#         st.write("/!\  ---- SOME COLUMNS ARE MISSING ---- /!\ ")
-#     # ----------------------------------------------------------------------------------------
-#     # ----------------------------------------------------------------------------------------
-#     n_lines_difference = result.shape[0] - solution_df.shape[0]
-#     if n_lines_difference != 0:
-#         st.write(f"DIFFERENCE DE  {n_lines_difference} LIGNES AVEC LA SOLUTION")
+    # ----------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------
+    try:
+        result = result[solution_df.columns]
+        st.dataframe(result.compare(solution_df))
+    except KeyError as e:
+        st.write("/!\  ---- SOME COLUMNS ARE MISSING ---- /!\ ")
+    # ----------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------
+    n_lines_difference = result.shape[0] - solution_df.shape[0]
+    if n_lines_difference != 0:
+        st.write(f"DIFFERENCE DE  {n_lines_difference} LIGNES AVEC LA SOLUTION")
 # # ----------------------------------------------------------------------------------------
 # # ----------------------------------------------------------------------------------------
 #
@@ -74,9 +80,6 @@ with tab2:
 #     st.dataframe(solution_df)
 #
 with tab3:
-    exercice_name = exercise.loc[0, "exercice_name"]
-    with open(f"answers/{exercice_name}.sql", "r") as f:
-        answer = f.read()
     st.write(answer)
 # # ----------------------------------------------------------------------------------------
 # # ----------------------------------------------------------------------------------------
