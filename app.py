@@ -1,11 +1,23 @@
 # pylint: disable=missing-module-docstring
 import io
+import logging
+import os
 import ast
 import duckdb
 import pandas as pd
 import streamlit as st
 
+if "data" not in os.listdir():
+    print("creating folder data")
+    logging.error(os.listdir())
+    logging.error("creating folder data")
+    # logging.debug(os.listdir())
+    # logging.debug("creating folder data")
+    os.mkdir("data")
 
+if "exercices_sql_tables.duckdb" not in os.listdir("data"):
+    exec(open("init_db.py").read())
+    # subprocess.run(["python", "init_db.py"])
 # ----------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------
 con = duckdb.connect(database = "data/exercices_sql_tables.duckdb", read_only = False)
@@ -24,7 +36,7 @@ with (st.sidebar):
     )
     st.write("You selected", theme)
 
-    exercise = con.execute(f"SELECT * FROM memory_state_df WHERE theme = '{theme}'").df()
+    exercise = con.execute(f"SELECT * FROM memory_state_df WHERE theme = '{theme}'").df().sort_values("last_reviewed").reset_index()
     st.write(exercise)
 
     exercice_name = exercise.loc[0, "exercice_name"]
@@ -67,7 +79,7 @@ with tab2:
         st.write("The 'tables' column is missing from the exercise DataFrame.")
     else:
         try:
-            exercise_tables = ast.literal_eval(exercise.loc[0, "tables"])
+            exercise_tables = (exercise.loc[0, "tables"])
             for table in exercise_tables:
                 st.write(f"table : {table}")
                 df_table = con.execute(f"SELECT * FROM {table}").df()
